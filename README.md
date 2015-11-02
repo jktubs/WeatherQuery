@@ -1,1 +1,3 @@
 # SurveillanceApplication
+
+This project is intended for ...
