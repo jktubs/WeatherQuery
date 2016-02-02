@@ -114,13 +114,36 @@ Select Minutes of Stop Time:<br />
 <input type="submit" value="submit" name="submit">
 <br />
 <br />
-<a href="startSurveillanceApplication.php">StartSurveillance Application</a>
+<a href="startSurveillanceApplicationThreadBased.php">StartSurveillance Application Thread-Based</a>
+<br />
+<br />
+<a href="startSurveillanceApplication.php">StartSurveillance Application (old)</a>
+<br />
+<br />
 <br />
 <br />
 <a href="showImagesOfCurrentDay.php">Show All Images of the current Day</a>
 <br />
 <br />
+<a href="/images">Image Folder</a>
+<br />
+<br />
+<br />
+<br />
+<a href="takeAPicture.php">Grab and Display current Image</a>
+<br />
+<br />
+<br />
+<br />
+<br />
+<br />
+<br />
+<br />
+<br />
 <a href="restart.php">Restart my Pi</a>
+<br />
+<br />
+<a href="shutdown.php">Shutdown my Pi</a>
 </form>
 <?
 } else {
