@@ -2,7 +2,7 @@
 
 <?php
 
-$currentDay = "2015-11-02";
+$currentDay = "2016-02-02";
 $dirPathRoot = "images"; 
 $files = array();
 $dir = new DirectoryIterator("/var/www/".$dirPathRoot."/".$currentDay."/");
