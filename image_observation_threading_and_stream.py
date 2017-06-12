@@ -10,6 +10,7 @@ from skimage.morphology import disk
 import time
 import picamera
 import os
+import shutil
 import datetime
 import fileinput
 import sys
@@ -97,14 +98,6 @@ def wait(image1, filename_current, image0, filename_last):
  
             thereWasADiff = True
 
-def ensure_dir(directory):
-    if not os.path.exists(directory):
-        os.makedirs(directory)
-        updatePhpScript()
-        return False
-    else:
-        return True
-
 class Config:
     runMode = ''
     active_time_start_h = ''
@@ -166,6 +159,8 @@ def ensure_dir(directory):
     if not os.path.exists(directory):
         os.makedirs(directory)
         updatePhpScript()
+        global PHP_SCRIPT
+        shutil.copy(PHP_SCRIPT, os.path.join(directory,"__showAllImages.php"))
         return False
     else:
         return True
