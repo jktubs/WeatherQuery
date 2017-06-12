@@ -176,17 +176,19 @@ def updatePhpScript():
     global PHP_SCRIPT
     replace(PHP_SCRIPT,str(yesterday),str(today))
     
-def getFolderSize(folder):
-    #total_size = os.path.getsize(folder)
-    #for item in os.listdir(folder):
-    #    itempath = os.path.join(folder, item)
-    #    if os.path.isfile(itempath):
-    #        total_size += os.path.getsize(itempath)
-    #    elif os.path.isdir(itempath):
-    #        total_size += getFolderSize(itempath)
-    #return total_size
-    time.sleep(1)
-    return 0
+def getFolderSize(folder, idle):
+    if(idle == True):
+        total_size = os.path.getsize(folder)
+        for item in os.listdir(folder):
+            itempath = os.path.join(folder, item)
+            if os.path.isfile(itempath):
+                total_size += os.path.getsize(itempath)
+            elif os.path.isdir(itempath):
+                total_size += getFolderSize(itempath,idle)
+        return total_size
+    else:
+        time.sleep(1)
+        return 0
 
 try:
     # Create a pool of image processors
@@ -217,6 +219,7 @@ try:
             # This method runs in a separate thread
             global done
             firstImage = True
+            idle = False
             #print "\nImageProcessor(): run() self.terminated " + str(self.terminated)
             while not self.terminated:
                 # Wait for an image to be written to the stream
@@ -259,7 +262,7 @@ try:
                         PHP_SCRIPT = config.php_script
                         IMAGE_FOLDER_ROOT = config.image_folder_root
                         measurement_begin = time.clock()                        
-                        folderSize = getFolderSize(IMAGE_FOLDER_ROOT)
+                        folderSize = getFolderSize(IMAGE_FOLDER_ROOT, idle)
                         measurement_end = time.clock()
                         log = "getFolderSize() took: %.3f s\n" %(measurement_end-measurement_begin)
                         print "folderSize = %d Bytes" %(folderSize)
@@ -284,6 +287,7 @@ try:
                         end_time   = datetime.datetime(now.year,now.month,now.day,runTimeEnd_h,runTimeEnd_m)
                         logfile.write(log)
                         if( (now >= begin_time) and (now <= end_time) and (RUN_MODE == 'Active')):
+                            idle = False
                             wait_begin = time.clock()
                             wait(im, current_image, im_old, last_image)
                             end_total = time.clock()
@@ -293,6 +297,7 @@ try:
                         else:
                             print now
                             print " in IDLE mode"
+                            idle = True
                             time.sleep(2)
 
                         im_old = im
