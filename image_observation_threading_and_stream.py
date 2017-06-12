@@ -27,7 +27,26 @@ counter = 0
 global logfile
 global PHP_SCRIPT
 
+def setPixelNeighborhood(img, x, y, neighborPixel_x, neighborPixel_y):
+    width, height = img.size
+    pixels = img.load() # create the pixel map
+    
+    for i in range(x, x+neighborPixel_x):
+        for j in range(y, y+neighborPixel_y):
+            if (i < width) and (j < height):
+                pixels[i,j] = (255, 255, 255) # set the colour white
 
+def maskBackground(img, x, y, neighborPixel_x, neighborPixel_y):
+    width, height = img.size
+    pixels = img.load() # create the pixel map
+    
+    for i in range(width):
+        for j in range(height):
+            if ( (i > x) and (i < (x+neighborPixel_x)) and (j > y) and (j < (y+neighborPixel_y)) ):
+                pass
+            else:
+                pixels[i,j] = (255, 255, 255) # set the colour white
+                
 def wait(image1, filename_current, image0, filename_last):
     print"\n%s\n" %(time.ctime())
     diffable = True
@@ -36,7 +55,10 @@ def wait(image1, filename_current, image0, filename_last):
         #print "Start calculate diff"
         start = time.clock()
         #diff = numpy.absolute(image1 - image0)
-        diff = numpy.array(ImageMath.eval('abs(int(a) - int(b))', a=image1, b=image0))
+        image1_cropped = image1.crop((560, 210, 1020, 590))
+        image0_cropped = image0.crop((560, 210, 1020, 590))
+        diff = numpy.array(ImageMath.eval('abs(int(a) - int(b))', a=image1_cropped, b=image0_cropped))
+        #diff = numpy.array(ImageMath.eval('abs(int(a) - int(b))', a=image1, b=image0))
         end = time.clock()
         #print "End calculate diff: %.3f s" %(end-start)
         log = "End calculate diff: %.3f s\n" %(end-start)
@@ -55,7 +77,7 @@ def wait(image1, filename_current, image0, filename_last):
         start = time.clock()
         max = numpy.amax(diff)
         end = time.clock()
-        log = "Max = %d , clac took: %.3f s\n" %(max, end-start)
+        log = "Max = %d , calc took: %.3f s\n" %(max, end-start)
         logfile.write(log)
         
         log = "sum = %d\n" %sum
@@ -63,12 +85,12 @@ def wait(image1, filename_current, image0, filename_last):
         global thereWasADiff
         if( sum > 45000 and max > 110):
             start = time.clock()
-            image1.save(filename_current)
+            image1_cropped.save(filename_current)
             end = time.clock()
             log = "End saving %s:  %.3f s\n" %(filename_current,end-start)
             logfile.write(log)
             start = time.clock()
-            image0.save(filename_last)
+            image0_cropped.save(filename_last)
             end = time.clock()
             log = "End saving %s:  %.3f s\n" %(filename_last,end-start)
             logfile.write(log)
@@ -160,15 +182,16 @@ def updatePhpScript():
     replace(PHP_SCRIPT,str(yesterday),str(today))
     
 def getFolderSize(folder):
-    total_size = os.path.getsize(folder)
-    for item in os.listdir(folder):
-        itempath = os.path.join(folder, item)
-        if os.path.isfile(itempath):
-            total_size += os.path.getsize(itempath)
-        elif os.path.isdir(itempath):
-            total_size += getFolderSize(itempath)
-    return total_size
-   
+    #total_size = os.path.getsize(folder)
+    #for item in os.listdir(folder):
+    #    itempath = os.path.join(folder, item)
+    #    if os.path.isfile(itempath):
+    #        total_size += os.path.getsize(itempath)
+    #    elif os.path.isdir(itempath):
+    #        total_size += getFolderSize(itempath)
+    #return total_size
+    time.sleep(1)
+    return 0
 
 try:
     # Create a pool of image processors
@@ -202,7 +225,7 @@ try:
             #print "\nImageProcessor(): run() self.terminated " + str(self.terminated)
             while not self.terminated:
                 # Wait for an image to be written to the stream
-                if self.event.wait(1):
+                if self.event.wait(2):
                     try:
                         #print "\nImageProcessor(): run() self.stream.seek(0)"
                         self.stream.seek(0)
@@ -210,7 +233,16 @@ try:
                         #content = self.stream.read()
                         print "\nid = " + str(self.id)# + ": "  + content
                         
+                        measurement_begin = time.clock()
                         im = Image.open(self.stream)
+                        measurement_end = time.clock()
+                        log = "Image.open() took: %.3f s\n" %(measurement_end-measurement_begin)
+                        logfile.write(log)
+                        #setPixelNeighborhood(im, 300,   5, 10, 10)
+                        #setPixelNeighborhood(im, 900,   5, 10, 10)
+                        #setPixelNeighborhood(im, 300, 480, 10, 10)
+                        #setPixelNeighborhood(im, 880, 700, 10, 10)
+                        #maskBackground(im, 340, 5, 660, 695)
                         if(firstImage==True):
                             im_old = im
                             firstImage = False
@@ -225,14 +257,16 @@ try:
                         #...
                         # Set done to True if you want the script to terminate
                         # at some point
-                        #done=True
-                        
+                        #done=True                        
                         config = readConfigFile()
                         RUN_MODE = config.runMode
                         global PHP_SCRIPT
                         PHP_SCRIPT = config.php_script
                         IMAGE_FOLDER_ROOT = config.image_folder_root
+                        measurement_begin = time.clock()                        
                         folderSize = getFolderSize(IMAGE_FOLDER_ROOT)
+                        measurement_end = time.clock()
+                        log = "getFolderSize() took: %.3f s\n" %(measurement_end-measurement_begin)
                         print "folderSize = %d Bytes" %(folderSize)
                         if(folderSize > 5000*1000000): #5000 MB
                             log = "Exit due to too large directory (%d Bytes)\n" %folderSize
@@ -253,10 +287,12 @@ try:
                         now = datetime.datetime.now()
                         begin_time = datetime.datetime(now.year,now.month,now.day,runTimeBegin_h,runTimeBegin_m)
                         end_time   = datetime.datetime(now.year,now.month,now.day,runTimeEnd_h,runTimeEnd_m)
+                        logfile.write(log)
                         if( (now >= begin_time) and (now <= end_time) and (RUN_MODE == 'Active')):
+                            wait_begin = time.clock()
                             wait(im, current_image, im_old, last_image)
                             end_total = time.clock()
-                            log = "1 cycle took: %.3f s\n" %(end_total-start_total)
+                            log = "1 cycle took: %.3f s (wait(): %.3f s)\n" %(end_total-start_total, end_total-wait_begin)
                             logfile.write(log)
                             start_total = time.clock()
                         else:
@@ -315,6 +351,7 @@ try:
         logfile.write('Starting Surveillance Application:\n')
         pool = [ImageProcessor(i) for i in range(1)]
         camera.resolution = (1280, 960) #(640, 480)
+        #camera.resolution = (800, 600) #(640, 480)
         camera.framerate = 30 #30
         camera.start_preview()
         time.sleep(2)
