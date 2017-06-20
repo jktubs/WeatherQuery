@@ -86,8 +86,12 @@ def wait(image1, filename_current, image0, filename_last):
         #print "Start calculate diff"
         start = time.clock()
         #diff = numpy.absolute(image1 - image0)
-        image1_cropped = image1.crop((560, 210, 1020, 590))
-        image0_cropped = image0.crop((560, 210, 1020, 590))
+        #image1_cropped = image1.crop((560, 210, 1020, 560)) #1280x960
+        #image0_cropped = image0.crop((560, 210, 1020, 560)) #1280x960
+        #image1_cropped = image1.crop((540, 30, 2230, 1460)) #2592x1944
+        #image0_cropped = image0.crop((540, 30, 2230, 1460)) #2592x1944
+        image1_cropped = image1.crop((395, 5, 1640, 1080)) #1920x1440
+        image0_cropped = image0.crop((395, 5, 1640, 1080)) #1920x1440
         diff = numpy.array(ImageMath.eval('abs(int(a) - int(b))', a=image1_cropped, b=image0_cropped))
         #diff = numpy.array(ImageMath.eval('abs(int(a) - int(b))', a=image1, b=image0))
         end = time.clock()
@@ -114,7 +118,7 @@ def wait(image1, filename_current, image0, filename_last):
         log = "sum = %d\n" %sum
         logfile.write(log)
         global thereWasADiff
-        if( sum > 45000 and max > 110):
+        if( sum > 67500 and max > 110):#45000
             start = time.clock()
             image1_cropped.save(filename_current)
             end = time.clock()
@@ -217,7 +221,7 @@ def getFolderSize(folder, idle):
                 total_size += getFolderSize(itempath,idle)
         return total_size
     else:
-        time.sleep(1)
+        pass#time.sleep(1)
         return 0
 
 try:
@@ -266,10 +270,10 @@ try:
                         measurement_end = time.clock()
                         log = "Image.open() took: %.3f s\n" %(measurement_end-measurement_begin)
                         logfile.write(log)
-                        #setPixelNeighborhood(im, 300,   5, 10, 10)
-                        #setPixelNeighborhood(im, 900,   5, 10, 10)
-                        #setPixelNeighborhood(im, 300, 480, 10, 10)
-                        #setPixelNeighborhood(im, 880, 700, 10, 10)
+                        #setPixelNeighborhood(im, 600,   200, 10, 10)
+                        #setPixelNeighborhood(im, 2300,  400, 10, 10)
+                        #setPixelNeighborhood(im, 900, 900, 10, 10)
+                        #setPixelNeighborhood(im, 1900, 1200, 10, 10)
                         #maskBackground(im, 340, 5, 660, 695)
                         if(firstImage==True):
                             im_old = im
@@ -385,7 +389,9 @@ try:
     	logfile = open(LOGFILE, 'a')
         logfile.write('Starting Surveillance Application:\n')
         pool = [ImageProcessor(i) for i in range(1)]
-        camera.resolution = (1280, 960) #(640, 480)
+        camera.resolution = (1920, 1440)
+        #camera.resolution = (2592, 1944)
+        #camera.resolution = (1280, 960)
         #camera.resolution = (800, 600) #(640, 480)
         camera.framerate = 30 #30
         camera.start_preview()

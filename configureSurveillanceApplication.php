@@ -117,8 +117,11 @@ Select Minutes of Stop Time:<br />
 <a href="startSurveillanceApplicationThreadBased.php">StartSurveillance Application Thread-Based</a>
 <br />
 <br />
-<a href="startSurveillanceApplication.php">StartSurveillance Application (old)</a>
+<!--<a href="startSurveillanceApplication.php">StartSurveillance Application (old)</a>-->
+<a href="setConfigToExit.php">Set Configuration to Exit</a>
 <br />
+<br />
+<a href="setConfigToActive.php">Set Configuration to Active</a>
 <br />
 <br />
 <br />

@@ -8,7 +8,8 @@ import picamera
 
 try:
     camera = picamera.PiCamera()
-    camera.resolution = (640, 480) #default: 1920x1080
+    camera.resolution = (2592, 1944) #default: 1920x1080
+    #camera.resolution = (1920, 1080)
     camera.framerate = 30
     camera.capture('/var/www/images/currentImage/currentImage.jpg')
 
