@@ -2,23 +2,25 @@
 
 <?php
 $serverIP = $_SERVER['SERVER_ADDR'];
-$currentDay = "2016-10-27";
+$currentDay = "2017-06-12";
 echo nl2br("Today: ".$currentDay."\n");
 echo nl2br("\nServer:".$serverIP);
 $dirPathRoot = "images"; 
 $files = array();
-$dir = new DirectoryIterator("/var/www/".$dirPathRoot."/".$currentDay."/");
-foreach ($dir as $fileinfo) {
+$dir = "/var/www/".$dirPathRoot."/".$currentDay."/";
+$dirIterator = new DirectoryIterator($dir);
+foreach ($dirIterator as $fileinfo) {
     #echo  nl2br ("\n".$fileinfo." _ ".$fileinfo->getMTime()."\n");
-    #echo "<img src=\"http://192.168.178.30/".$dirPathRoot."/".$currentDay."/".$fileinfo->getFilename()."\" align=middle>";
-    $files[$fileinfo->getMTime()] = $fileinfo->getFilename();
+    #$files[$fileinfo->getMTime()] = $fileinfo->getFilename();
+    $files[$fileinfo->getFilename()] = $fileinfo->getFilename();
 }
 
 ksort($files);
 
 foreach($files as $file)
 {
-   echo nl2br ("\n".$file."\n");
+   $currentFile = $dir . $file;
+   echo nl2br ("\n".$file. " >>> " . date ("F d Y H:i:s.", filemtime($currentFile)). "\n");
    echo "<img src=\"http://".$serverIP."/".$dirPathRoot."/".$currentDay."/".$file."\" align=middle>";
 }
 ?>
