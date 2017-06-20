@@ -14,6 +14,7 @@ import shutil
 import datetime
 import fileinput
 import sys
+import logging
 
 import io
 import time
@@ -23,10 +24,39 @@ from PIL import Image, ImageMath
 from skimage import io as skimageio
 import numpy
 
+logging.basicConfig(level=logging.DEBUG,
+                    format='(%(threadName)-10s) %(message)s',
+                    )
 global counter
 counter = 0
 global logfile
 global PHP_SCRIPT
+global path_in
+path_in = '/var/www/images/default'
+global path_out
+path_out = '/var/www/images/default'
+global e
+e = threading.Event()
+
+def copyFilesWorker(e, t):
+    """Wait t seconds and then timeout"""
+    doExit = False
+    while not doExit:
+        logging.debug('wait_for_event_timeout starting')
+        event_is_set = e.wait(t)
+        logging.debug('event set: %s', event_is_set)
+        if event_is_set:
+            logging.debug('processing event')
+            doExit = True
+        else:
+            logging.debug('Check if files to be copied are available.')
+            src_files = os.listdir(path_in)
+            for file_name in src_files:
+                full_file_name = os.path.join(path_in, file_name)
+                if (os.path.isfile(full_file_name) and not os.path.exists(os.path.join(path_out, file_name))):
+                    logging.debug('copy ' + file_name)
+                    shutil.copy(full_file_name, path_out)
+    logging.debug('Leaving copyFilesWorker()')
 
 def setPixelNeighborhood(img, x, y, neighborPixel_x, neighborPixel_y):
     width, height = img.size
@@ -273,6 +303,11 @@ try:
                         global counter
                         CURRENT_IMAGE_FOLDER_PATH = IMAGE_FOLDER_ROOT + '%s/' %(datetime.date.today())
                         ensure_dir(CURRENT_IMAGE_FOLDER_PATH)
+                        global path_in
+                        path_in = CURRENT_IMAGE_FOLDER_PATH
+                        global path_out
+                        path_out = '/home/pi/box/Surveillance_Images/' + '%s/' %(datetime.date.today())
+                        ensure_dir(path_out)
                         last_image = CURRENT_IMAGE_FOLDER_PATH + 'image%015d.jpg' %(counter)
                         counter += 1
                         current_image = CURRENT_IMAGE_FOLDER_PATH + 'image%015d.jpg' %(counter)
@@ -355,6 +390,9 @@ try:
         camera.framerate = 30 #30
         camera.start_preview()
         time.sleep(2)
+        global e
+        t = threading.Thread(name='CopyFilesThread', target=copyFilesWorker, args=(e, 300)) #check every 5 mins for files to be uploaded
+        t.start()
         camera.capture_sequence(streams(), use_video_port=True)
         
 
@@ -371,6 +409,8 @@ finally:
         processor.join()
         print "\nwhile pool: processor.join() DONE"
     logfile.close()
+    global e
+    e.set()
     print "finally camera.close()"
     camera.close()
     
