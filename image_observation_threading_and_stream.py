@@ -15,6 +15,7 @@ import datetime
 import fileinput
 import sys
 import logging
+import traceback
 
 import io
 import time
@@ -32,31 +33,56 @@ counter = 0
 global logfile
 global PHP_SCRIPT
 global path_in
-path_in = '/var/www/images/default'
+path_in = '/media/usb/images/default'
 global path_out
-path_out = '/var/www/images/default'
+path_out = '/media/usb/images/default'
 global e
 e = threading.Event()
 
 def copyFilesWorker(e, t):
-    """Wait t seconds and then timeout"""
-    doExit = False
-    while not doExit:
-        logging.debug('wait_for_event_timeout starting')
-        event_is_set = e.wait(t)
-        logging.debug('event set: %s', event_is_set)
-        if event_is_set:
-            logging.debug('processing event')
-            doExit = True
-        else:
-            logging.debug('Check if files to be copied are available.')
-            src_files = os.listdir(path_in)
-            for file_name in src_files:
-                full_file_name = os.path.join(path_in, file_name)
-                if (os.path.isfile(full_file_name) and not os.path.exists(os.path.join(path_out, file_name))):
-                    logging.debug('copy ' + file_name)
-                    shutil.copy(full_file_name, path_out)
-    logging.debug('Leaving copyFilesWorker()')
+    try:
+        """Wait t seconds and then timeout"""
+        doExit = False
+        LOGFILE = '/media/usb/images/logfileCopyFilesWorker.txt'
+        print "check path" 
+        if os.path.isfile(LOGFILE):
+            print "exists"
+            backupFile = LOGFILE + '%s.txt' %(datetime.date.today())
+            print backupFile
+            os.rename(LOGFILE, backupFile) 
+        logfile = open(LOGFILE, 'a')
+        logfile.write('CopyFilesWorker:\n')
+        while not doExit:
+            logfile.write('wait_for_event_timeout starting:\n')
+            logging.debug('wait_for_event_timeout starting')
+            event_is_set = e.wait(t)
+            logging.debug('event set: %s', event_is_set)
+            if event_is_set:
+                logging.debug('processing event')
+                logfile.write('processing event\n')
+                doExit = True
+            else:
+                logging.debug('Check if files to be copied are available.')
+                logfile.write('Check if files to be copied are available.\n')
+                src_files = os.listdir(path_in)
+                for file_name in src_files:
+                    full_file_name = os.path.join(path_in, file_name)
+                    if (os.path.isfile(full_file_name) and not os.path.exists(os.path.join(path_out, file_name))):
+                        logging.debug('copy ' + file_name)
+                        logfile.write('copy ' + file_name + '\n')
+                        #shutil.copyfile(full_file_name, path_out)
+                        shutil.copyfile(full_file_name, os.path.join(path_out, os.path.basename(full_file_name)))
+        logging.debug('Leaving copyFilesWorker()')
+        logfile.write('Leaving copyFilesWorker()\n')
+    except:
+        exc_type, exc_value, exc_traceback = sys.exc_info()
+        lines = traceback.format_exception(exc_type, exc_value, exc_traceback)
+        msg = ''.join('!! ' + line for line in lines)
+        print "Unexpected error in copyFilesWorker(): ", msg
+        logfile.write(msg)
+    finally:
+        logfile.write("finally statement copyFilesWorker() reached.")
+        logfile.close()
 
 def setPixelNeighborhood(img, x, y, neighborPixel_x, neighborPixel_y):
     width, height = img.size
@@ -129,8 +155,9 @@ def wait(image1, filename_current, image0, filename_last):
             end = time.clock()
             log = "End saving %s:  %.3f s\n" %(filename_last,end-start)
             logfile.write(log)
- 
             thereWasADiff = True
+
+                
 
 class Config:
     runMode = ''
@@ -310,7 +337,7 @@ try:
                         global path_in
                         path_in = CURRENT_IMAGE_FOLDER_PATH
                         global path_out
-                        path_out = '/home/pi/box/Surveillance_Images/' + '%s/' %(datetime.date.today())
+                        path_out = '/media/usb/box/Surveillance_Images/' + '%s/' %(datetime.date.today())
                         ensure_dir(path_out)
                         last_image = CURRENT_IMAGE_FOLDER_PATH + 'image%015d.jpg' %(counter)
                         counter += 1
@@ -337,9 +364,16 @@ try:
                             print now
                             print " in IDLE mode"
                             idle = True
-                            time.sleep(2)
+                            time.sleep(20)
 
                         im_old = im
+                    except:
+                        exc_type, exc_value, exc_traceback = sys.exc_info()
+                        lines = traceback.format_exception(exc_type, exc_value, exc_traceback)
+                        msg = ''.join('!! ' + line for line in lines)
+                        print "Unexpected error in run(): ", msg
+                        logfile.write(msg)
+                        done=True
                     finally:
                         #print "\nImageProcessor(): run() self.stream.seek(0) FINALLY"
                         # Reset the stream and event
@@ -400,7 +434,14 @@ try:
         t = threading.Thread(name='CopyFilesThread', target=copyFilesWorker, args=(e, 300)) #check every 5 mins for files to be uploaded
         t.start()
         camera.capture_sequence(streams(), use_video_port=True)
-        
+except:
+    exc_type, exc_value, exc_traceback = sys.exc_info()
+    lines = traceback.format_exception(exc_type, exc_value, exc_traceback)
+    msg = ''.join('!! ' + line for line in lines)
+    print "Unexpected error: ", msg
+    logfile.write("Unexpected error while saving:")
+    logfile.write(msg)
+    
 
 finally:
     # Shut down the processors in an orderly fashion
@@ -414,6 +455,7 @@ finally:
         print "\nwhile pool: processor.join()"
         processor.join()
         print "\nwhile pool: processor.join() DONE"
+    logfile.write("finally statement reached.")
     logfile.close()
     global e
     e.set()
