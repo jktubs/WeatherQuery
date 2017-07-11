@@ -218,10 +218,11 @@ def replace(file,searchExp,replaceExp):
 
 def ensure_dir(directory):
     if not os.path.exists(directory):
+    	print 'create directory: ' + directory
         os.makedirs(directory)
         updatePhpScript()
         global PHP_SCRIPT
-        shutil.copy(PHP_SCRIPT, os.path.join(directory,"__showAllImages.php"))
+        shutil.copyfile(PHP_SCRIPT, os.path.join(directory,"__showAllImages.php"))
         return False
     else:
         return True
@@ -248,7 +249,7 @@ def getFolderSize(folder, idle):
                 total_size += getFolderSize(itempath,idle)
         return total_size
     else:
-        pass#time.sleep(1)
+        time.sleep(0.5)
         return 0
 
 try:
@@ -338,7 +339,7 @@ try:
                         path_in = CURRENT_IMAGE_FOLDER_PATH
                         global path_out
                         path_out = '/media/usb/box/Surveillance_Images/' + '%s/' %(datetime.date.today())
-                        ensure_dir(path_out)
+                        #ensure_dir(path_out)
                         last_image = CURRENT_IMAGE_FOLDER_PATH + 'image%015d.jpg' %(counter)
                         counter += 1
                         current_image = CURRENT_IMAGE_FOLDER_PATH + 'image%015d.jpg' %(counter)
@@ -364,7 +365,7 @@ try:
                             print now
                             print " in IDLE mode"
                             idle = True
-                            time.sleep(20)
+                            time.sleep(2)
 
                         im_old = im
                     except:
@@ -431,8 +432,8 @@ try:
         camera.start_preview()
         time.sleep(2)
         global e
-        t = threading.Thread(name='CopyFilesThread', target=copyFilesWorker, args=(e, 300)) #check every 5 mins for files to be uploaded
-        t.start()
+        #t = threading.Thread(name='CopyFilesThread', target=copyFilesWorker, args=(e, 300)) #check every 5 mins for files to be uploaded
+        #t.start()
         camera.capture_sequence(streams(), use_video_port=True)
 except:
     exc_type, exc_value, exc_traceback = sys.exc_info()
