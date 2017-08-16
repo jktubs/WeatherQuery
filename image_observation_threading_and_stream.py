@@ -33,9 +33,9 @@ counter = 0
 global logfile
 global PHP_SCRIPT
 global path_in
-path_in = '/media/usb/images/default'
+path_in = '/var/www/images/default'
 global path_out
-path_out = '/media/usb/images/default'
+path_out = '/var/www/images/default'
 global e
 e = threading.Event()
 
@@ -144,7 +144,7 @@ def wait(image1, filename_current, image0, filename_last):
         log = "sum = %d\n" %sum
         logfile.write(log)
         global thereWasADiff
-        if( sum > 67500 and max > 110):#45000
+        if( sum > 300000 and max > 110):#45000
             start = time.clock()
             image1_cropped.save(filename_current)
             end = time.clock()
