@@ -331,6 +331,7 @@ try:
                         if(folderSize > 5000*1000000): #5000 MB
                             log = "Exit due to too large directory (%d Bytes)\n" %folderSize
                             logfile.write(log)
+                            print log
                             done=True
                         global counter
                         CURRENT_IMAGE_FOLDER_PATH = IMAGE_FOLDER_ROOT + '%s/' %(datetime.date.today())
