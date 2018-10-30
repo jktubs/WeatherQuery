@@ -1,7 +1,0 @@
-RUN_MODE = #Exit#
-ACTIVE_TIME_START_HOUR    = #00#
-ACTIVE_TIME_START_MINUTES = #00#
-ACTIVE_TIME_STOP_HOUR     = #00#
-ACTIVE_TIME_STOP_MINUTES  = #00#
-PHP_SCRIPT = #/var/www/showImagesOfCurrentDay.php#
-IMAGE_FOLDER_ROOT = #/var/www/images/#
