@@ -1,0 +1,28 @@
+
+Wireshark Filter:
+(ip.src== 192.168.178.31 and ip.dst== 62.138.109.56) or( ip.src== 62.138.109.56 and ip.dst== 192.168.178.31)
+
+GET /wetter_aktuell/rueckblick/deutschland/weil/weil_der_stadt/DE0012247011.html
+
+%url = 'http://www.wetter.com/wetter_aktuell/rueckblickdata/?code=Q440&offset=4'
+url = 'https://www.wetter.com/wetter_aktuell/rueckblick/deutschland/weil/weil_der_stadt/DE0012247011.html?sid=Q440&amp&timeframe=10y'
+headers = {'Accept': 'application/json, text/plain', 'Referer': 'http://www.wetter.com/wetter_aktuell/rueckblick/?id=DE0012247011', 'X-Requested-With': 'XMLHttpRequest'}
+r = requests.get(url, headers=headers)
+data = r.json()
+
+len(data)
+
+sumRainFall = 0
+for element in data:
+    day = element['x']
+    th = element['th']
+    tl = element['tl']
+    rainfall = element['pd']
+    sumRainFall = sumRainFall + rainfall
+    print '\nDay: %s' %(day)
+    print 'Temp High: %s' %(th)
+    print 'Temp Low: %s' %(tl)
+    print 'Rainfall: %s liter' %(rainfall)
+    
+
+print '\nRainfall over the last 365 Days: %s liter' %(sumRainFall)
