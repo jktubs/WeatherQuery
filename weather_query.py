@@ -1,4 +1,5 @@
 #import time
+from __future__ import division
 import requests
 import xlsxwriter
 
@@ -7,6 +8,7 @@ import xlsxwriter
 
 try:
     url = 'https://www.wetter.com/wetter_aktuell/rueckblick/deutschland/weil/weil_der_stadt/DE0012247011.html?sid=Q440&timeframe=1y'
+    #url = 'https://www.wetter.com/wetter_aktuell/rueckblick/deutschland/weil/weil_der_stadt/DE0012247011.html?sid=Q440&timeframe=10y'
     headers = {'Accept': 'application/json, text/plain', 'Referer': 'http://www.wetter.com/wetter_aktuell/rueckblick/?id=DE0012247011', 'X-Requested-With': 'XMLHttpRequest'}
     
     print 1
@@ -79,15 +81,16 @@ try:
                 else:
                     worksheet1.write_number(row, 1, precipitation)
 
-            print '\nDay: %s' %day #time.strftime('\nDay: %Y-%m-%d %H:%M:%S', time.localtime(day))
-            print 'Temp High: %s °C' %(th)
-            print 'Temp Low: %s °C' %(tl)
-            print 'Precipitation: %s liter' %(precipitation)
-            print '%d day sum: %.2f liter' %( days, sumOfRain)
+            #print '\nDay: %s' %day #time.strftime('\nDay: %Y-%m-%d %H:%M:%S', time.localtime(day))
+            #print 'Temp High: %s °C' %(th)
+            #print 'Temp Low: %s °C' %(tl)
+            #print 'Precipitation: %s liter' %(precipitation)
+            #print '%d day sum: %.2f liter' %( days, sumOfRain)
             row += 1
     
-    print '\nPrecipitation over the last 365 Days: %.2f liter' %(sumprecipitation)
-    print '\nMax precipitation over the last 365 Days: %.2f liter per Day (%s)' %(maxprecipitation, maxprecipitationDay)
+    print '\nPrecipitation over the last %d Days: %.2f liter' %(row, sumprecipitation)
+    print '\nAverage Precipitation per year: %.2f liter' %(sumprecipitation/(row/365))
+    print '\nMax precipitation over the last %d Days: %.2f liter per Day (%s)' %(row, maxprecipitation, maxprecipitationDay)
     #print time.strftime('%Y-%m-%d %H:%M:%S', time.localtime(1347517370))
 finally:
     f_out.close()
