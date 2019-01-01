@@ -11,9 +11,9 @@ try:
     #url = 'https://www.wetter.com/wetter_aktuell/rueckblick/deutschland/weil/weil_der_stadt/DE0012247011.html?sid=Q440&timeframe=10y'
     headers = {'Accept': 'application/json, text/plain', 'Referer': 'http://www.wetter.com/wetter_aktuell/rueckblick/?id=DE0012247011', 'X-Requested-With': 'XMLHttpRequest'}
     
-    print 1
+    print(1)
     r = requests.get(url, headers=headers)
-    print r
+    print(r)
     #print r.text
     response = r.text
 
@@ -82,8 +82,8 @@ try:
                     worksheet1.write_number(row, 1, precipitation)
 
             #print '\nDay: %s' %day #time.strftime('\nDay: %Y-%m-%d %H:%M:%S', time.localtime(day))
-            #print 'Temp High: %s °C' %(th)
-            #print 'Temp Low: %s °C' %(tl)
+            #print 'Temp High: %s C' %(th)
+            #print 'Temp Low: %s C' %(tl)
             #print 'Precipitation: %s liter' %(precipitation)
             #print '%d day sum: %.2f liter' %( days, sumOfRain)
             row += 1
@@ -95,4 +95,4 @@ try:
 finally:
     f_out.close()
     workbook.close()
-    print "Finished"
+    print("Finished")

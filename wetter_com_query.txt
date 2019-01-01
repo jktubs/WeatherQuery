@@ -1,7 +1,7 @@
 anaconda:
 
 cd E:\
-cd GitHub/WetterComQuery/WeatherComQuery/
+cd GitHub/WetterQuery/
 %run weather_query.py
 
 
