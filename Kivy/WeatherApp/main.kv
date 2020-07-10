@@ -1,0 +1,30 @@
+<Container>:
+    display: display
+    year_button: year_button
+    average_days: average_days
+    rows: 2
+    BoxLayout:
+        orientation: "horizontal"
+        size_hint: 1, 0.1
+        QueryWeatherDataButton:
+            on_release: root.query_weather_data()
+        QueryWeatherYearDataButton:
+            on_release: root.query_year_data()
+        YearButton:
+            id: year_button
+            size_hint: 0.4, 1
+        YearMinusButton:
+            on_release: root.decrement_year()
+            size_hint: 0.2, 1
+        YearPlusButton:
+            on_release: root.increment_year()
+            size_hint: 0.2, 1
+        TextInput:
+            id: average_days
+            size_hint: 0.2, 1
+            text: '5'
+    Label:
+        id: display
+        size_hint: 1, 0.9
+        font_size: dp(13)
+        text: ''

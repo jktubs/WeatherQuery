@@ -1,8 +1,10 @@
 anaconda:
 
 cd E:\
-cd GitHub/WetterQuery/
+cd GitHub/WeatherQuery/
 %run weather_query.py
+
+cmd: python weather_query.py
 
 
 doc

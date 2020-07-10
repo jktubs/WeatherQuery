@@ -7,7 +7,9 @@ import xlsxwriter
 #(ip.src== 192.168.178.31 and ip.dst== 62.138.109.56) or( ip.src== 62.138.109.56 and ip.dst== 192.168.178.31)
 
 try:
-    url = 'https://www.wetter.com/wetter_aktuell/rueckblick/deutschland/weil/weil_der_stadt/DE0012247011.html?sid=Q440&timeframe=1y'
+    #url = 'https://www.wetter.com/wetter_aktuell/rueckblick/deutschland/weil/weil_der_stadt/DE0012247011.html?sid=Q440&timeframe=1y'
+    url = 'https://www.wetter.com/wetter_aktuell/rueckblick/deutschland/weil-der-stadt/DE0012247011.html?sid=Q440&timeframe=1y'
+    #url = 'https://www.wetter.com/wetter_aktuell/rueckblick/deutschland/weil-der-stadt/DE0012247011.html?sid=Q440&timeframe=30d'
     #url = 'https://www.wetter.com/wetter_aktuell/rueckblick/deutschland/weil/weil_der_stadt/DE0012247011.html?sid=Q440&timeframe=10y'
     headers = {'Accept': 'application/json, text/plain', 'Referer': 'http://www.wetter.com/wetter_aktuell/rueckblick/?id=DE0012247011', 'X-Requested-With': 'XMLHttpRequest'}
     
@@ -24,7 +26,7 @@ try:
     
     days = 5
     daysSum = days * [0]
-    daysSumThres = 40
+    daysSumThres = 26 #initially 40 ==> in August/September 2019 normalization was changed also for past values ~ 65%: 0,65*40 = 26
     daysIndex = 0
         
     sumprecipitation = 0.0
@@ -53,7 +55,7 @@ try:
             tempMin = line[(result_tempMinString+len(tempMinString)):(result_tempMaxString-1)]
             tempMax = line[(result_tempMaxString+len(tempMaxString)):(result_precipitationString-1)]
             precipitation = line[(result_precipitationString+len(precipitationString)):(line.find("},"))]
-            #print "date: %s, tempMin: %s, tempMax: %s, precipitation: %s" %(day, tempMin, tempMax, precipitation)
+            #print("date: {:s}, tempMin: {:s}, tempMax: {:s}, precipitation: {:s}".format(day, tempMin, tempMax, precipitation))
             #print "%d %d %d %d: %s" %(result_dateString, result_tempMinString, result_tempMaxString, result_precipitationString,line) 
 
             th = float(tempMin)
@@ -88,9 +90,9 @@ try:
             #print '%d day sum: %.2f liter' %( days, sumOfRain)
             row += 1
     
-    print '\nPrecipitation over the last %d Days: %.2f liter' %(row, sumprecipitation)
-    print '\nAverage Precipitation per year: %.2f liter' %(sumprecipitation/(row/365))
-    print '\nMax precipitation over the last %d Days: %.2f liter per Day (%s)' %(row, maxprecipitation, maxprecipitationDay)
+    print('Precipitation over the last {:d} Days: {:.2f} liter'.format(row, sumprecipitation))
+    print('Average Precipitation per year: {:.2f}  liter'.format(sumprecipitation/(row/365)))
+    print('Max precipitation over the last {:d} Days: {:.2f} liter per Day {:s}'.format(row, maxprecipitation, maxprecipitationDay))
     #print time.strftime('%Y-%m-%d %H:%M:%S', time.localtime(1347517370))
 finally:
     f_out.close()

@@ -1,0 +1,21 @@
+jens@jens-VirtualBox:~/.buildozer/android/platform$ 
+
+
+
+sudo rm -rf android-ndk-r9c
+
+
+
+jens@jens-VirtualBox:~/.buildozer/android/platform$ sudo tar xjf android-ndk-r9c-linux-x86_64.tar.bz2
+
+
+
+
+
+jens@jens-VirtualBox:/media/sf_Box_Sync/Kivy$ buildozer android clean
+
+jens@jens-VirtualBox:/media/sf_Box_Sync/Kivy$ buildozer android debug
+
+
+
+examples: /usr/share/kivy-examples/demo
